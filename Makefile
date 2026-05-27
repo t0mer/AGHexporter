@@ -19,10 +19,7 @@ run:
 	go run ./cmd/adguardhome-exporter
 
 release:
-	GOOS=linux   GOARCH=amd64 go build $(LDFLAGS) -o dist/adguardhome-exporter-linux-amd64   ./cmd/adguardhome-exporter
-	GOOS=linux   GOARCH=arm64 go build $(LDFLAGS) -o dist/adguardhome-exporter-linux-arm64   ./cmd/adguardhome-exporter
-	GOOS=darwin  GOARCH=arm64 go build $(LDFLAGS) -o dist/adguardhome-exporter-darwin-arm64  ./cmd/adguardhome-exporter
-	GOOS=windows GOARCH=amd64 go build $(LDFLAGS) -o dist/adguardhome-exporter-windows-amd64.exe ./cmd/adguardhome-exporter
+	./scripts/build.sh
 
 clean:
 	rm -rf bin/ dist/

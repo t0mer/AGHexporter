@@ -4,61 +4,49 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Version tag (leave empty to auto-compute via scripts/next-version.sh)"
+        description: 'Version (leave blank to auto-compute)'
         required: false
-        type: string
-
-permissions:
-  contents: write
 
 jobs:
   release:
-    name: Build & publish release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Set up Go
-        uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
-          cache: true
 
       - name: Resolve version
         id: version
         run: |
-          if [ -n "${{ inputs.version }}" ]; then
-            VERSION="${{ inputs.version }}"
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            echo "version=${{ github.event.inputs.version }}" >> "$GITHUB_OUTPUT"
           else
-            VERSION=$(bash scripts/next-version.sh)
+            echo "version=$(./scripts/next-version.sh)" >> "$GITHUB_OUTPUT"
           fi
-          echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "Release version: $VERSION"
 
-      - name: Build release binaries
-        run: |
-          mkdir -p dist
-          GOOS=linux   GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o dist/adguardhome-exporter-linux-amd64       ./cmd/adguardhome-exporter
-          GOOS=linux   GOARCH=arm64 go build -trimpath -ldflags="-s -w" -o dist/adguardhome-exporter-linux-arm64       ./cmd/adguardhome-exporter
-          GOOS=darwin  GOARCH=arm64 go build -trimpath -ldflags="-s -w" -o dist/adguardhome-exporter-darwin-arm64      ./cmd/adguardhome-exporter
-          GOOS=windows GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o dist/adguardhome-exporter-windows-amd64.exe ./cmd/adguardhome-exporter
+      - name: Build all targets
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: ./scripts/build.sh
 
-      - name: Create git tag
+      - name: Create and push tag
         run: |
-          git config user.name "github-actions[bot]"
+          git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag "${{ steps.version.outputs.VERSION }}"
-          git push origin "${{ steps.version.outputs.VERSION }}"
+          git tag "${{ steps.version.outputs.version }}"
+          git push origin "${{ steps.version.outputs.version }}"
 
       - name: Create GitHub Release
         # pinned to v2.3.2 — https://github.com/softprops/action-gh-release/releases/tag/v2.3.2
         uses: softprops/action-gh-release@c95fe1489396fe8a9eb87c0abf8aa5b2ef267fda
         with:
-          tag_name: ${{ steps.version.outputs.VERSION }}
-          name: ${{ steps.version.outputs.VERSION }}
-          generate_release_notes: true
+          tag_name: ${{ steps.version.outputs.version }}
           files: dist/*
+          generate_release_notes: true
