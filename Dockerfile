@@ -3,6 +3,7 @@ FROM --platform=$BUILDPLATFORM golang:1.23-alpine AS builder
 
 ARG TARGETOS
 ARG TARGETARCH
+ARG TARGETVARIANT
 
 WORKDIR /build
 
@@ -11,7 +12,8 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
+# GOARM is derived from TARGETVARIANT (e.g. "v7" → "7"); ignored for non-arm arches.
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} GOARM=${TARGETVARIANT#v} \
     go build -trimpath -ldflags="-s -w" \
     -o adguardhome-exporter ./cmd/adguardhome-exporter
 
