@@ -276,24 +276,50 @@ secrets:
 
 ## Prometheus Configuration
 
+Add a scrape job to your `prometheus.yml`. The `honor_labels: true` setting is **required** — without it Prometheus overwrites the `instance` label (which carries the AdGuard Home instance name) with the exporter's own scrape address, breaking the per-instance filtering in the dashboard.
+
 ```yaml
 scrape_configs:
   - job_name: adguardhome
+    honor_labels: true          # keep the instance labels set by the exporter
+    scrape_interval: 30s
     static_configs:
       - targets: ["localhost:9100"]
 ```
 
+If you are running the exporter on a different host or behind a reverse proxy, replace `localhost:9100` with the appropriate address. The `job_name` value (`adguardhome` above) is what appears in the **Job** drop-down of the Grafana dashboard.
+
 ---
 
-## Grafana
+## Grafana Dashboard
 
-Point a Prometheus datasource at the scrape job above. All metrics are labelled with `instance` so you can filter or group by individual AdGuard Home instances. Panels covering the following areas work out of the box:
+### Import
 
-- Status & protection state
-- DNS traffic and query counts
-- Security & filtering (safe browsing, parental, safe search)
-- Top clients, queried domains, and blocked domains
-- Processing time and upstream response latency
+1. In Grafana, go to **Dashboards → Import**.
+2. Upload `deployments/grafana/dashboard.json` from this repository (or paste its contents).
+3. When prompted, select your **Prometheus** datasource. The dashboard uses Grafana's standard `__inputs` mechanism, so this prompt appears exactly once at import — no datasource dropdown is shown on the dashboard itself.
+4. Click **Import**.
+
+The dashboard exposes two variables in the top bar:
+
+| Variable | Description |
+|----------|-------------|
+| **Job** | Prometheus scrape job name (e.g. `adguardhome`). |
+| **Instance** | One or more AdGuard Home instance names to display. Supports multi-select; default is **All**. |
+
+### Screenshots
+
+**Status, filtering breakdown, and top clients:**
+
+![Dashboard — top section](docs/images/dashboard-top.png)
+
+**Average response time, query volume, upstream latency, and blocked query rate:**
+
+![Dashboard — charts](docs/images/dashboard-charts.png)
+
+**Top queried hosts, top blocked hosts, and top filtered clients:**
+
+![Dashboard — tables](docs/images/dashboard-tables.png)
 
 ---
 
