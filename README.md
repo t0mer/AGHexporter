@@ -238,7 +238,7 @@ Service metadata:
 ```yaml
 services:
   adguard-exporter:
-    image: ghcr.io/t0mer/aghexporter:latest
+    image: techblog/aghexporter:latest
     ports:
       - "9100:9100"
     environment:
@@ -253,7 +253,7 @@ With Docker secrets:
 ```yaml
 services:
   adguard-exporter:
-    image: ghcr.io/t0mer/aghexporter:latest
+    image: techblog/aghexporter:latest
     ports:
       - "9100:9100"
     environment:
