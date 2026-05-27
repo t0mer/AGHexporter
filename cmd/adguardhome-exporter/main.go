@@ -12,6 +12,9 @@ import (
 	"github.com/t0mer/AGHexporter/internal/svc"
 )
 
+// version is injected at build time via -ldflags "-X main.version=<tag>".
+var version = "dev"
+
 func main() {
 	var (
 		serviceAction string
@@ -41,7 +44,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	slog.Info("starting AdGuard Home exporter", "port", port, "instances", len(insts))
+	slog.Info("starting AdGuard Home exporter", "version", version, "port", port, "instances", len(insts))
 	for _, inst := range insts {
 		slog.Info("configured instance", "name", inst.Name, "url", inst.URL)
 	}

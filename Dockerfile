@@ -4,6 +4,7 @@ FROM --platform=$BUILDPLATFORM golang:1.23-alpine AS builder
 ARG TARGETOS
 ARG TARGETARCH
 ARG TARGETVARIANT
+ARG VERSION=dev
 
 WORKDIR /build
 
@@ -14,7 +15,7 @@ COPY . .
 
 # GOARM is derived from TARGETVARIANT (e.g. "v7" → "7"); ignored for non-arm arches.
 RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} GOARM=${TARGETVARIANT#v} \
-    go build -trimpath -ldflags="-s -w" \
+    go build -trimpath -ldflags="-s -w -X main.version=${VERSION}" \
     -o adguardhome-exporter ./cmd/adguardhome-exporter
 
 # Final — scratch keeps the image minimal; CA certs are copied for HTTPS support

@@ -3,7 +3,8 @@ set -euo pipefail
 
 BIN=adguardhome-exporter
 PKG=./cmd/adguardhome-exporter
-LDFLAGS="-s -w"
+VERSION=${VERSION:-dev}
+LDFLAGS="-s -w -X main.version=${VERSION}"
 mkdir -p dist
 
 build() {
