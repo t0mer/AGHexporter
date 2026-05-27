@@ -14,7 +14,15 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-const shutdownTimeout = 5 * time.Second
+const (
+	shutdownTimeout   = 5 * time.Second
+	readHeaderTimeout = 5 * time.Second
+	readTimeout       = 10 * time.Second
+	// writeTimeout must exceed the collector's scrapeTimeout (10s) to avoid
+	// cutting off slow scrapes before they finish writing.
+	writeTimeout = 30 * time.Second
+	idleTimeout  = 60 * time.Second
+)
 
 // Run starts the HTTP server on the given port and blocks until SIGINT/SIGTERM.
 func Run(port int, reg *prometheus.Registry) error {
@@ -25,8 +33,12 @@ func Run(port int, reg *prometheus.Registry) error {
 	})
 
 	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%d", port),
-		Handler: mux,
+		Addr:              fmt.Sprintf(":%d", port),
+		Handler:           mux,
+		ReadHeaderTimeout: readHeaderTimeout,
+		ReadTimeout:       readTimeout,
+		WriteTimeout:      writeTimeout,
+		IdleTimeout:       idleTimeout,
 	}
 
 	sigCh := make(chan os.Signal, 1)
