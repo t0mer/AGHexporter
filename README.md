@@ -311,15 +311,15 @@ The dashboard exposes two variables in the top bar:
 
 **Status, filtering breakdown, and top clients:**
 
-![Dashboard — top section](docs/images/dashboard-top.png)
+![Dashboard — top section](https://raw.githubusercontent.com/t0mer/AGHexporter/main/docs/images/dashboard-top.png)
 
 **Average response time, query volume, upstream latency, and blocked query rate:**
 
-![Dashboard — charts](docs/images/dashboard-charts.png)
+![Dashboard — charts](https://raw.githubusercontent.com/t0mer/AGHexporter/main/docs/images/dashboard-charts.png)
 
 **Top queried hosts, top blocked hosts, and top filtered clients:**
 
-![Dashboard — tables](docs/images/dashboard-tables.png)
+![Dashboard — tables](https://raw.githubusercontent.com/t0mer/AGHexporter/main/docs/images/dashboard-tables.png)
 
 ---
 
